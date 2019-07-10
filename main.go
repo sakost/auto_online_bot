@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"github.com/nikepan/govkbot"
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 type EnvMap map[string]string
@@ -28,17 +30,25 @@ func checkErr(err error) {
 	}
 }
 
+func run(){
+	var (
+		result interface{}
+		err error
+	)
+	err = govkbot.API.CallMethod("account.setOnline", make(map[string]string, 0), &result)
+	checkErr(err)
+}
 
 func main(){
 	var (
 		env EnvMap
-		result interface{}
-		err error
+		ticker = time.Tick(5 * time.Minute)
 	)
-
-	env = getEnv("AUTO_ONLINE_")
-
+	env = getEnv("AUTO_ONLINE_BOT_")
 	govkbot.SetAPI(env["TOKEN"], "", "")
-	err = govkbot.API.CallMethod("account.setOnline", make(map[string]string, 0), &result)
-	checkErr(err)
+
+	for now := range ticker {
+		fmt.Printf("%v - setting online\n", now)
+		run()
+	}
 }
